@@ -16,8 +16,10 @@ class Pasture(private val width: Int, private val height: Int)
         generate()
     }
 
-    private fun generate()
+    fun generate()
     {
+        tilesData.clear()
+
         val random = Random()
 
         for(y in 0 until height)
@@ -25,10 +27,12 @@ class Pasture(private val width: Int, private val height: Int)
             for(x in 0 until width)
             {
                 val index = x + y * width
-                val tileType = random.nextInt(3)
                 val tilePosition = Vector2(x.toFloat() * GAME_TILE_SIZE, y.toFloat() * GAME_TILE_SIZE)
 
-                val tile = Tile(tilePosition, TileType.valueOf(tileType))
+                val basicTileType = TileType.GRASS0
+                val actionTileType = if(random.nextBoolean()) TileType.valueOf(random.nextInt(8) + 1) else TileType.NONE
+
+                val tile = Tile(tilePosition, basicTileType, actionTileType)
 
                 tilesData.add(index, tile)
             }

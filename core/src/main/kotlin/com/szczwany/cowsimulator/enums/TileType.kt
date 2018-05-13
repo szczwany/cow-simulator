@@ -2,16 +2,15 @@ package com.szczwany.cowsimulator.enums
 
 enum class TileType
 {
+    NONE,
     GRASS0,
     GRASS1,
     GRASS2,
     GRASS3,
-    GRASS4,
-    GRASS5,
-    GRASS6,
-    GRASS7,
-    GRASS8,
-    WATER;
+    FLOWER0,
+    FLOWER1,
+    LOWGRASS0,
+    HIGHGRASS0;
 
     companion object
     {

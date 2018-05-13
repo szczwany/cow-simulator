@@ -1,7 +1,7 @@
 package com.szczwany.cowsimulator
 
 import com.badlogic.gdx.Game
-import com.szczwany.cowsimulator.assets.AssetsManager
+import com.szczwany.cowsimulator.assets.AssetLibrary
 import com.szczwany.cowsimulator.screens.GameScreen
 
 class CowSimulatorGame : Game()
@@ -9,12 +9,12 @@ class CowSimulatorGame : Game()
     // Nie moze byc w companion object ?
     companion object
     {
-        lateinit var assetsManager: AssetsManager
+        lateinit var assetLibrary: AssetLibrary
     }
 
     override fun create()
     {
-        assetsManager = AssetsManager()
+        assetLibrary = AssetLibrary()
 
         setScreen(GameScreen())
     }
@@ -23,6 +23,6 @@ class CowSimulatorGame : Game()
     {
         super.dispose()
 
-        assetsManager.dispose()
+        assetLibrary.dispose()
     }
 }

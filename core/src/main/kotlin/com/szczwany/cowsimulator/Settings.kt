@@ -5,7 +5,7 @@ object Settings
     const val WINDOW_WIDTH = 1280
     const val WINDOW_HEIGHT = 768
 
-    const val TEXTURE_TILE_SIZE = 16
+    const val TEXTURE_TILE_SIZE = 32
     const val GAME_TILE_SIZE = 64F
 
     // temp
