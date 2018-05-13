@@ -4,7 +4,6 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.szczwany.cowsimulator.Settings.TEXTURE_TILE_SIZE
-import com.szczwany.cowsimulator.entity.Tile
 import com.szczwany.cowsimulator.enums.TileType
 
 class AssetLibrary
@@ -27,7 +26,7 @@ class AssetLibrary
         initTileRegion(5,0, TileType.FLOWER0)
         initTileRegion(7,0, TileType.FLOWER1)
         initTileRegion(0,2, TileType.LOWGRASS0)
-        initTileRegion(1,2, TileType.HIGHGRASS0)
+        initTileRegion(1,2, TileType.TALLGRASS0)
     }
 
     private fun initTileRegion(x: Int, y: Int, tileType: TileType)
@@ -41,15 +40,4 @@ class AssetLibrary
     {
         grassTerrain32x32.dispose()
     }
-
-    // private val terrainSpriteSheet16x16: Texture = Texture(Gdx.files.internal("grass_tileset_16x16.png"))
-    // private val terrainTexturesMap: MutableMap<TileType, TextureRegion> = hashMapOf()
-
-    /*private fun initGrassTerrain()
-    {
-        for(index in 0..8)
-        {
-            terrainTexturesMap[TileType.valueOf("GRASS$index")] = TextureRegion(terrainSpriteSheet16x16, 0, index * TEXTURE_TILE_SIZE, TEXTURE_TILE_SIZE, TEXTURE_TILE_SIZE)
-        }
-    }*/
 }

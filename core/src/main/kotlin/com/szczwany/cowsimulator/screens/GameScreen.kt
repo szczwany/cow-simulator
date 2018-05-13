@@ -6,6 +6,8 @@ import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.szczwany.cowsimulator.Settings.PASTURE_HEIGHT
 import com.szczwany.cowsimulator.Settings.PASTURE_WIDTH
+import com.szczwany.cowsimulator.Settings.WINDOW_HEIGHT
+import com.szczwany.cowsimulator.enums.ActionType
 import com.szczwany.cowsimulator.world.Pasture
 
 class GameScreen : BaseScreen()
@@ -29,10 +31,7 @@ class GameScreen : BaseScreen()
         Gdx.gl.glClearColor(0f, 0f, 0f, 1f)
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
 
-        if(Gdx.input.isKeyJustPressed(Input.Keys.G))
-        {
-            pasture.generate()
-        }
+        pasture.update(deltaTime)
 
         spriteBatch.begin()
         draw(deltaTime)

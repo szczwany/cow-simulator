@@ -10,7 +10,7 @@ enum class TileType
     FLOWER0,
     FLOWER1,
     LOWGRASS0,
-    HIGHGRASS0;
+    TALLGRASS0;
 
     companion object
     {

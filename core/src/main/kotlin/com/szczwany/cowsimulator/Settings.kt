@@ -11,4 +11,6 @@ object Settings
     // temp
     const val PASTURE_WIDTH = WINDOW_WIDTH / GAME_TILE_SIZE.toInt()
     const val PASTURE_HEIGHT = WINDOW_HEIGHT / GAME_TILE_SIZE.toInt()
+
+    const val GRASS_GROW_TIME = 20F
 }
