@@ -13,4 +13,9 @@ object Settings
     const val PASTURE_HEIGHT = WINDOW_HEIGHT / GAME_TILE_SIZE.toInt()
 
     const val GRASS_GROW_TIME = 20F
+
+    const val TEXTURE_COW_SIZE = 128
+    const val GAME_COW_SIZE = 256F
+
+    const val COW_BRAIN_TIME = 2F
 }
