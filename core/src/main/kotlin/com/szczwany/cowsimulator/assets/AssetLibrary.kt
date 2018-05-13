@@ -4,14 +4,17 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.szczwany.cowsimulator.Settings.TEXTURE_COW_SIZE
+import com.szczwany.cowsimulator.Settings.TEXTURE_PLANT_SIZE
 import com.szczwany.cowsimulator.Settings.TEXTURE_TILE_SIZE
+import com.szczwany.cowsimulator.enums.PlantType
 import com.szczwany.cowsimulator.enums.TileType
 
 class AssetLibrary
 {
 
     private val grassTerrain32x32: Texture = Texture(Gdx.files.internal("grass_tileset_32x32.png"))
-    private val grassTerrainMap: MutableMap<TileType, TextureRegion> = hashMapOf()
+    private val tileMap: MutableMap<TileType, TextureRegion> = hashMapOf()
+    private val plantMap: MutableMap<PlantType, TextureRegion> = hashMapOf()
 
     private val cowWalk: Texture = Texture(Gdx.files.internal("cow/cow_walk.png"))
     private val cowEat: Texture = Texture(Gdx.files.internal("cow/cow_eat.png"))
@@ -20,20 +23,25 @@ class AssetLibrary
 
     init
     {
-        initGrassTerrain()
+        initTiles()
+        initPlants()
         initCow()
     }
 
-    private fun initGrassTerrain()
+    private fun initTiles()
     {
         addTileRegion(0,0, TileType.GRASS0)
-        addTileRegion(1,0, TileType.GRASS1)
-        addTileRegion(2,0, TileType.GRASS2)
-        addTileRegion(3,0, TileType.GRASS3)
-        addTileRegion(5,0, TileType.FLOWER0)
-        addTileRegion(7,0, TileType.FLOWER1)
-        addTileRegion(0,2, TileType.LOWGRASS0)
-        addTileRegion(1,2, TileType.TALLGRASS0)
+    }
+
+    private fun initPlants()
+    {
+        addPlantRegion(1,0, PlantType.GRASS1)
+        addPlantRegion(2,0, PlantType.GRASS2)
+        addPlantRegion(3,0, PlantType.GRASS3)
+        addPlantRegion(5,0, PlantType.FLOWER0)
+        addPlantRegion(7,0, PlantType.FLOWER1)
+        addPlantRegion(0,2, PlantType.LOWGRASS0)
+        addPlantRegion(1,2, PlantType.TALLGRASS0)
     }
 
     private fun initCow()
@@ -53,11 +61,16 @@ class AssetLibrary
 
     private fun addTileRegion(x: Int, y: Int, tileType: TileType)
     {
-        grassTerrainMap[tileType] = TextureRegion(grassTerrain32x32, x * TEXTURE_TILE_SIZE, y * TEXTURE_TILE_SIZE, TEXTURE_TILE_SIZE, TEXTURE_TILE_SIZE)
+        tileMap[tileType] = TextureRegion(grassTerrain32x32, x * TEXTURE_TILE_SIZE, y * TEXTURE_TILE_SIZE, TEXTURE_TILE_SIZE, TEXTURE_TILE_SIZE)
     }
 
-    fun getGrassTerrainTextureRegion(tileType: TileType) : TextureRegion? = if(tileType != TileType.NONE) grassTerrainMap[tileType] else null
+    private fun addPlantRegion(x: Int, y: Int, plantType: PlantType)
+    {
+        plantMap[plantType] = TextureRegion(grassTerrain32x32, x * TEXTURE_PLANT_SIZE, y * TEXTURE_PLANT_SIZE, TEXTURE_PLANT_SIZE, TEXTURE_PLANT_SIZE)
+    }
 
+    fun getTileTextureRegion(tileType: TileType) : TextureRegion? = tileMap[tileType]
+    fun getPlantTextureRegion(plantType: PlantType) : TextureRegion? = plantMap[plantType]
     fun getCowTexture(index: Int) : TextureRegion? = cowMap[index]
 
     fun dispose()

@@ -5,19 +5,25 @@ import com.badlogic.gdx.Input
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.math.Vector2
 import com.szczwany.cowsimulator.CowSimulatorGame
-import com.szczwany.cowsimulator.Settings
+import com.szczwany.cowsimulator.Settings.GAME_COW_SIZE
+import com.szczwany.cowsimulator.Settings.GAME_PLANT_SIZE
 import com.szczwany.cowsimulator.Settings.GAME_TILE_SIZE
+import com.szczwany.cowsimulator.Settings.WINDOW_HEIGHT
+import com.szczwany.cowsimulator.Settings.WINDOW_WIDTH
 import com.szczwany.cowsimulator.entity.Cow
+import com.szczwany.cowsimulator.entity.Entity
+import com.szczwany.cowsimulator.entity.Plant
 import com.szczwany.cowsimulator.entity.Tile
 import com.szczwany.cowsimulator.enums.ActionType
+import com.szczwany.cowsimulator.enums.PlantType
 import com.szczwany.cowsimulator.enums.TileType
 import java.util.*
 
 class Pasture(private val width: Int, private val height: Int)
 {
-    private val tilesData = mutableListOf<Tile>()
+    private val entityList = mutableListOf<Entity>()
 
-    private val cow = Cow(Vector2(100F, 100F), CowSimulatorGame.assetLibrary.getCowTexture(0))
+    private val cow = Cow(Vector2(WINDOW_WIDTH / 2F - GAME_COW_SIZE / 2, WINDOW_HEIGHT / 2F - GAME_COW_SIZE / 2), CowSimulatorGame.assetLibrary.getCowTexture(0))
 
     init
     {
@@ -26,42 +32,61 @@ class Pasture(private val width: Int, private val height: Int)
 
     private fun generate()
     {
-        tilesData.clear()
+        entityList.clear()
 
+        // init grass
+        for(y in 0 until height)
+        {
+            for(x in 0 until width)
+            {
+                val tilePosition = Vector2(x * GAME_TILE_SIZE, y * GAME_TILE_SIZE)
+
+                val tile = Tile(tilePosition, TileType.GRASS0)
+
+                entityList.add(tile)
+            }
+        }
+
+        // init entities
         val random = Random()
 
         for(y in 0 until height)
         {
             for(x in 0 until width)
             {
-                val index = x + y * width
+                val tilePosition = Vector2(x * GAME_PLANT_SIZE, y * GAME_PLANT_SIZE)
+                val plantTileType = if(random.nextBoolean()) PlantType.valueOf(random.nextInt(2) + 6) else PlantType.NONE
 
-                val tilePosition = Vector2(x.toFloat() * GAME_TILE_SIZE, y.toFloat() * GAME_TILE_SIZE)
+                val plant = Plant(tilePosition, plantTileType)
 
-                val basicTileType = TileType.GRASS0
-                val actionTileType = if(random.nextBoolean()) TileType.valueOf(random.nextInt(2) + 7) else TileType.NONE
-
-                val tile = Tile(tilePosition, basicTileType, actionTileType)
-
-                tilesData.add(index, tile)
+                entityList.add(plant)
             }
         }
+
+        entityList.add(cow)
     }
 
     fun update(deltaTime: Float)
     {
-        for (tile in tilesData)
-        {
-            tile.growTime = deltaTime
-        }
-
         if(Gdx.input.isKeyJustPressed(Input.Keys.G))
         {
             generate()
         }
 
-        val mouseX = Gdx.input.x
-        val mouseY = Settings.WINDOW_HEIGHT - Gdx.input.y
+        for (entity in entityList)
+        {
+            if(entity is Plant)
+            {
+                entity.growTime = deltaTime
+            }
+            else if(entity is Cow)
+            {
+                entity.update(deltaTime)
+            }
+        }
+
+        val mouseX = Gdx.input.x.toFloat()
+        val mouseY = WINDOW_HEIGHT - Gdx.input.y.toFloat()
 
         if(Gdx.input.isButtonPressed(Input.Buttons.LEFT))
         {
@@ -71,39 +96,45 @@ class Pasture(private val width: Int, private val height: Int)
         {
             tileAction(mouseX, mouseY, ActionType.PLANT)
         }
-
-        cow.update(deltaTime)
-
-        if(Gdx.input.isKeyPressed(Input.Keys.NUMPAD_5))
-        {
-            tileAction(cow.position.x.toInt(), cow.position.y.toInt(), ActionType.EAT)
-        }
     }
 
     fun draw(spriteBatch: SpriteBatch)
     {
-        for(tile in tilesData)
-        {
-            tile.draw(spriteBatch)
-        }
+        entityList.sort()
 
-        cow.draw(spriteBatch)
+        for(entity in entityList)
+        {
+            entity.draw(spriteBatch)
+        }
     }
 
-    private fun tileAction(mouseX: Int, mouseY: Int, actionType: ActionType)
+    private fun tileAction(mouseX: Float, mouseY: Float, actionType: ActionType)
     {
-        val x = mouseX / GAME_TILE_SIZE.toInt()
-        val y = mouseY / GAME_TILE_SIZE.toInt()
+        val plant = getPlantAroundCords(mouseX, mouseY)
 
-        val index = x + y * width
+        if(plant != null)
+        {
+            if (actionType == ActionType.EAT)
+            {
+                plant.eatTallGrass()
+            }
+            else if(actionType == ActionType.PLANT)
+            {
+                plant.plantLowGrass()
+            }
+        }
+    }
 
-        if (actionType == ActionType.EAT)
+    private fun getPlantAroundCords(x: Float, y: Float) : Plant?
+    {
+        for (entity in entityList)
         {
-            tilesData[index].eatTallGrass()
+            if (entity is Plant && entity.bounds().contains(x, y))
+            {
+                return entity
+            }
         }
-        else if(actionType == ActionType.PLANT)
-        {
-            tilesData[index].plantLowGrass()
-        }
+
+        return null
     }
 }

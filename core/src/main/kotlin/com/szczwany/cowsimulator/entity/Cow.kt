@@ -4,16 +4,17 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.g2d.TextureRegion
+import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Vector2
 import com.szczwany.cowsimulator.Settings.GAME_COW_SIZE
 import com.szczwany.cowsimulator.Settings.WINDOW_HEIGHT
 import com.szczwany.cowsimulator.Settings.WINDOW_WIDTH
 
-class Cow(position: Vector2, private val texture: TextureRegion?)
+class Cow(position: Vector2, private val texture: TextureRegion?) : Entity(position)
 {
     private val speed = 300F
 
-    var position = position
+    override var position = position
         set(value)
         {
             field = value
@@ -38,12 +39,12 @@ class Cow(position: Vector2, private val texture: TextureRegion?)
         position = Vector2(position.x + speed * deltaTime * dirX, position.y + speed * deltaTime * dirY)
     }
 
-    fun draw(spriteBatch: SpriteBatch)
+    override fun draw(spriteBatch: SpriteBatch)
     {
         spriteBatch.draw(texture, position.x, position.y, GAME_COW_SIZE, GAME_COW_SIZE)
     }
 
-    fun update(deltaTime: Float)
+    override fun update(deltaTime: Float)
     {
         if(Gdx.input.isKeyPressed(Input.Keys.NUMPAD_4))
         {
