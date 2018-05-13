@@ -1,6 +1,5 @@
 package com.szczwany.cowsimulator.entity
 
-import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Vector2
 import com.szczwany.cowsimulator.Settings.GRASS_GROW_TIME
@@ -31,14 +30,6 @@ class Plant(position: Vector2, width: Float, height: Float, entityType: EntityTy
 
     override fun update(deltaTime: Float)
     {}
-
-    override fun draw(spriteBatch: SpriteBatch)
-    {
-        if(entityTextureRegion != null)
-        {
-            super.draw(spriteBatch)
-        }
-    }
 
     private fun growTallGrass()
     {

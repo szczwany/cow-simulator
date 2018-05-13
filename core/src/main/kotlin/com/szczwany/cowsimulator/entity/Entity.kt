@@ -10,8 +10,8 @@ fun getTextureRegion(entityType: EntityType) = CowSimulatorGame.assetLibrary.get
 
 abstract class Entity(protected open var position: Vector2, protected val width: Float, protected val height: Float, protected var entityType: EntityType) : Comparable<Entity>
 {
-    protected var entityTextureRegion: TextureRegion? = null
-        get() = getTextureRegion(entityType)
+    protected open var entityTextureRegion: TextureRegion? = null
+        get() = if(entityType != EntityType.ALIVE) getTextureRegion(entityType) else null
 
     open fun draw(spriteBatch: SpriteBatch)
     {

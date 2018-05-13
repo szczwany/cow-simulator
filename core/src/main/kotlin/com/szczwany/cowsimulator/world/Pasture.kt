@@ -31,8 +31,7 @@ class Pasture(private val width: Int, private val height: Int)
     private val entityList = mutableListOf<Entity>()
 
     private val cow = Cow(Vector2(WINDOW_WIDTH / 2F - GAME_COW_SIZE / 2, WINDOW_HEIGHT / 2F - GAME_COW_SIZE / 2),
-            GAME_COW_SIZE, GAME_COW_SIZE,
-            CowSimulatorGame.assetLibrary.getCowTexture(0))
+            GAME_COW_SIZE, GAME_COW_SIZE)
 
     init
     {

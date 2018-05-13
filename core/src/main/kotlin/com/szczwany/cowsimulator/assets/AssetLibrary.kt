@@ -38,15 +38,37 @@ class AssetLibrary
 
     private fun initCow()
     {
-        var index = -1
-        val w = cowWalk.width / TEXTURE_COW_SIZE
-        val h = cowWalk.height / TEXTURE_COW_SIZE
+        var index = 0
+        var w = cowWalk.width / TEXTURE_COW_SIZE
+        var h = cowWalk.height / TEXTURE_COW_SIZE
 
-        for(x in 0 until w)
+        for(y in 0 until h)
         {
-            for (y in 0 until h)
+            for (x in 0 until w)
             {
-                cowMap[index++] = TextureRegion(cowWalk, x * TEXTURE_COW_SIZE, y * TEXTURE_COW_SIZE, TEXTURE_COW_SIZE, TEXTURE_COW_SIZE)
+                cowMap[index] = TextureRegion(cowWalk, x * TEXTURE_COW_SIZE, y * TEXTURE_COW_SIZE, TEXTURE_COW_SIZE, TEXTURE_COW_SIZE)
+                index++
+            }
+        }
+
+        for(y in 0 until h)
+        {
+            for (x in 0 until w)
+            {
+                cowMap[index] = TextureRegion(cowEat, x * TEXTURE_COW_SIZE, y * TEXTURE_COW_SIZE, TEXTURE_COW_SIZE, TEXTURE_COW_SIZE)
+                index++
+            }
+        }
+
+        w = cowShadow.width / TEXTURE_COW_SIZE
+        h = cowShadow.height / TEXTURE_COW_SIZE
+
+        for(y in 0 until h)
+        {
+            for (x in 0 until w)
+            {
+                cowMap[index] = TextureRegion(cowShadow, x * TEXTURE_COW_SIZE, y * TEXTURE_COW_SIZE, TEXTURE_COW_SIZE, TEXTURE_COW_SIZE)
+                index++
             }
         }
     }
