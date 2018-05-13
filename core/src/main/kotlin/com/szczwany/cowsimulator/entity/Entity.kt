@@ -1,12 +1,24 @@
 package com.szczwany.cowsimulator.entity
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
+import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.math.Vector2
+import com.szczwany.cowsimulator.CowSimulatorGame
+import com.szczwany.cowsimulator.enums.EntityType
 
-abstract class Entity(protected open var position: Vector2) : Comparable<Entity>
+fun getTextureRegion(entityType: EntityType) = CowSimulatorGame.assetLibrary.getEntityTextureRegion(entityType)
+
+abstract class Entity(protected open var position: Vector2, protected val width: Float, protected val height: Float, protected var entityType: EntityType) : Comparable<Entity>
 {
-    open fun draw(spriteBatch: SpriteBatch){}
-    open fun update(deltaTime: Float){}
+    protected var entityTextureRegion: TextureRegion? = null
+        get() = getTextureRegion(entityType)
+
+    open fun draw(spriteBatch: SpriteBatch)
+    {
+        spriteBatch.draw(entityTextureRegion, position.x, position.y, width, height)
+    }
+
+    abstract fun update(deltaTime: Float)
 
     override fun compareTo(other: Entity) : Int
     {

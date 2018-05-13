@@ -15,15 +15,24 @@ import com.szczwany.cowsimulator.entity.Entity
 import com.szczwany.cowsimulator.entity.Plant
 import com.szczwany.cowsimulator.entity.Tile
 import com.szczwany.cowsimulator.enums.ActionType
-import com.szczwany.cowsimulator.enums.PlantType
-import com.szczwany.cowsimulator.enums.TileType
+import com.szczwany.cowsimulator.enums.EntityType
 import java.util.*
+
+fun pixelToEntityPosition(x: Float, y: Float): Vector2
+{
+    val posX = (x / GAME_PLANT_SIZE).toInt() * GAME_PLANT_SIZE
+    val posY = (y / GAME_PLANT_SIZE).toInt() * GAME_PLANT_SIZE
+
+    return Vector2(posX, posY)
+}
 
 class Pasture(private val width: Int, private val height: Int)
 {
     private val entityList = mutableListOf<Entity>()
 
-    private val cow = Cow(Vector2(WINDOW_WIDTH / 2F - GAME_COW_SIZE / 2, WINDOW_HEIGHT / 2F - GAME_COW_SIZE / 2), CowSimulatorGame.assetLibrary.getCowTexture(0))
+    private val cow = Cow(Vector2(WINDOW_WIDTH / 2F - GAME_COW_SIZE / 2, WINDOW_HEIGHT / 2F - GAME_COW_SIZE / 2),
+            GAME_COW_SIZE, GAME_COW_SIZE,
+            CowSimulatorGame.assetLibrary.getCowTexture(0))
 
     init
     {
@@ -39,9 +48,8 @@ class Pasture(private val width: Int, private val height: Int)
         {
             for(x in 0 until width)
             {
-                val tilePosition = Vector2(x * GAME_TILE_SIZE, y * GAME_TILE_SIZE)
-
-                val tile = Tile(tilePosition, TileType.GRASS0)
+                val entityPosition = Vector2(x * GAME_TILE_SIZE, y * GAME_TILE_SIZE)
+                val tile = Tile(entityPosition, GAME_TILE_SIZE, GAME_TILE_SIZE, EntityType.GRASS0)
 
                 entityList.add(tile)
             }
@@ -54,10 +62,15 @@ class Pasture(private val width: Int, private val height: Int)
         {
             for(x in 0 until width)
             {
-                val tilePosition = Vector2(x * GAME_PLANT_SIZE, y * GAME_PLANT_SIZE)
-                val plantTileType = if(random.nextBoolean()) PlantType.valueOf(random.nextInt(2) + 6) else PlantType.NONE
+                if(random.nextBoolean())
+                {
+                    continue
+                }
 
-                val plant = Plant(tilePosition, plantTileType)
+                val entityPosition = Vector2(x * GAME_PLANT_SIZE, y * GAME_PLANT_SIZE)
+                val entityType = EntityType.valueOf(random.nextInt(2) + 8)
+
+                val plant = Plant(entityPosition, GAME_PLANT_SIZE, GAME_PLANT_SIZE, entityType)
 
                 entityList.add(plant)
             }
@@ -90,11 +103,11 @@ class Pasture(private val width: Int, private val height: Int)
 
         if(Gdx.input.isButtonPressed(Input.Buttons.LEFT))
         {
-            tileAction(mouseX, mouseY, ActionType.EAT)
+            performPlantAction(mouseX, mouseY, ActionType.EAT)
         }
         else if(Gdx.input.isButtonPressed(Input.Buttons.RIGHT))
         {
-            tileAction(mouseX, mouseY, ActionType.PLANT)
+            performPlantAction(mouseX, mouseY, ActionType.PLANT)
         }
     }
 
@@ -108,28 +121,33 @@ class Pasture(private val width: Int, private val height: Int)
         }
     }
 
-    private fun tileAction(mouseX: Float, mouseY: Float, actionType: ActionType)
+    private fun performPlantAction(mouseX: Float, mouseY: Float, actionType: ActionType)
     {
-        val plant = getPlantAroundCords(mouseX, mouseY)
+        val plant = getCurrentPlant(mouseX, mouseY)
 
         if(plant != null)
         {
-            if (actionType == ActionType.EAT)
+            if (actionType == ActionType.EAT && plant.harvestable)
             {
-                plant.eatTallGrass()
+                entityList.remove(plant)
             }
-            else if(actionType == ActionType.PLANT)
+        }
+        else
+        {
+            if(actionType == ActionType.PLANT)
             {
-                plant.plantLowGrass()
+                val entityPosition = pixelToEntityPosition(mouseX, mouseY)
+
+                entityList.add(Plant(entityPosition, GAME_PLANT_SIZE, GAME_PLANT_SIZE, EntityType.LOWGRASS0))
             }
         }
     }
 
-    private fun getPlantAroundCords(x: Float, y: Float) : Plant?
+    private fun getCurrentPlant(x: Float, y: Float) : Plant?
     {
         for (entity in entityList)
         {
-            if (entity is Plant && entity.bounds().contains(x, y))
+            if (entity is Plant && entity.getBounds().contains(x, y))
             {
                 return entity
             }

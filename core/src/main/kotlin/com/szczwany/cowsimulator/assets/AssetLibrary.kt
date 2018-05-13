@@ -4,17 +4,14 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.szczwany.cowsimulator.Settings.TEXTURE_COW_SIZE
-import com.szczwany.cowsimulator.Settings.TEXTURE_PLANT_SIZE
 import com.szczwany.cowsimulator.Settings.TEXTURE_TILE_SIZE
-import com.szczwany.cowsimulator.enums.PlantType
-import com.szczwany.cowsimulator.enums.TileType
+import com.szczwany.cowsimulator.enums.EntityType
 
 class AssetLibrary
 {
 
     private val grassTerrain32x32: Texture = Texture(Gdx.files.internal("grass_tileset_32x32.png"))
-    private val tileMap: MutableMap<TileType, TextureRegion> = hashMapOf()
-    private val plantMap: MutableMap<PlantType, TextureRegion> = hashMapOf()
+    private val entityMap: MutableMap<EntityType, TextureRegion> = hashMapOf()
 
     private val cowWalk: Texture = Texture(Gdx.files.internal("cow/cow_walk.png"))
     private val cowEat: Texture = Texture(Gdx.files.internal("cow/cow_eat.png"))
@@ -23,25 +20,20 @@ class AssetLibrary
 
     init
     {
-        initTiles()
-        initPlants()
+        initGrassTerrain()
         initCow()
     }
 
-    private fun initTiles()
+    private fun initGrassTerrain()
     {
-        addTileRegion(0,0, TileType.GRASS0)
-    }
-
-    private fun initPlants()
-    {
-        addPlantRegion(1,0, PlantType.GRASS1)
-        addPlantRegion(2,0, PlantType.GRASS2)
-        addPlantRegion(3,0, PlantType.GRASS3)
-        addPlantRegion(5,0, PlantType.FLOWER0)
-        addPlantRegion(7,0, PlantType.FLOWER1)
-        addPlantRegion(0,2, PlantType.LOWGRASS0)
-        addPlantRegion(1,2, PlantType.TALLGRASS0)
+        addEntityTextureRegion(0,0, EntityType.GRASS0)
+        addEntityTextureRegion(1,0, EntityType.GRASS1)
+        addEntityTextureRegion(2,0, EntityType.GRASS2)
+        addEntityTextureRegion(3,0, EntityType.GRASS3)
+        addEntityTextureRegion(5,0, EntityType.FLOWER0)
+        addEntityTextureRegion(7,0, EntityType.FLOWER1)
+        addEntityTextureRegion(0,2, EntityType.LOWGRASS0)
+        addEntityTextureRegion(1,2, EntityType.TALLGRASS0)
     }
 
     private fun initCow()
@@ -59,22 +51,20 @@ class AssetLibrary
         }
     }
 
-    private fun addTileRegion(x: Int, y: Int, tileType: TileType)
+    private fun addEntityTextureRegion(x: Int, y: Int, entityType: EntityType)
     {
-        tileMap[tileType] = TextureRegion(grassTerrain32x32, x * TEXTURE_TILE_SIZE, y * TEXTURE_TILE_SIZE, TEXTURE_TILE_SIZE, TEXTURE_TILE_SIZE)
+        entityMap[entityType] = TextureRegion(grassTerrain32x32, x * TEXTURE_TILE_SIZE, y * TEXTURE_TILE_SIZE, TEXTURE_TILE_SIZE, TEXTURE_TILE_SIZE)
     }
 
-    private fun addPlantRegion(x: Int, y: Int, plantType: PlantType)
-    {
-        plantMap[plantType] = TextureRegion(grassTerrain32x32, x * TEXTURE_PLANT_SIZE, y * TEXTURE_PLANT_SIZE, TEXTURE_PLANT_SIZE, TEXTURE_PLANT_SIZE)
-    }
+    fun getEntityTextureRegion(entityType: EntityType) : TextureRegion? = entityMap[entityType]
 
-    fun getTileTextureRegion(tileType: TileType) : TextureRegion? = tileMap[tileType]
-    fun getPlantTextureRegion(plantType: PlantType) : TextureRegion? = plantMap[plantType]
     fun getCowTexture(index: Int) : TextureRegion? = cowMap[index]
 
     fun dispose()
     {
         grassTerrain32x32.dispose()
+        cowWalk.dispose()
+        cowEat.dispose()
+        cowShadow.dispose()
     }
 }

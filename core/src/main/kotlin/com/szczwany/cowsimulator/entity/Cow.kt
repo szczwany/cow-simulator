@@ -9,8 +9,9 @@ import com.badlogic.gdx.math.Vector2
 import com.szczwany.cowsimulator.Settings.GAME_COW_SIZE
 import com.szczwany.cowsimulator.Settings.WINDOW_HEIGHT
 import com.szczwany.cowsimulator.Settings.WINDOW_WIDTH
+import com.szczwany.cowsimulator.enums.EntityType
 
-class Cow(position: Vector2, private val texture: TextureRegion?) : Entity(position)
+class Cow(position: Vector2, width: Float, height: Float, private val texture: TextureRegion?) : Entity(position, width, height, EntityType.ALIVE)
 {
     private val speed = 300F
 
@@ -41,7 +42,7 @@ class Cow(position: Vector2, private val texture: TextureRegion?) : Entity(posit
 
     override fun draw(spriteBatch: SpriteBatch)
     {
-        spriteBatch.draw(texture, position.x, position.y, GAME_COW_SIZE, GAME_COW_SIZE)
+        spriteBatch.draw(texture, position.x, position.y, width, height)
     }
 
     override fun update(deltaTime: Float)

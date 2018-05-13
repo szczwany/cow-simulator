@@ -1,26 +1,17 @@
 package com.szczwany.cowsimulator.entity
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
-import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Vector2
-import com.szczwany.cowsimulator.CowSimulatorGame
-import com.szczwany.cowsimulator.Settings.GAME_PLANT_SIZE
-import com.szczwany.cowsimulator.Settings.GAME_TILE_SIZE
 import com.szczwany.cowsimulator.Settings.GRASS_GROW_TIME
-import com.szczwany.cowsimulator.enums.PlantType
+import com.szczwany.cowsimulator.enums.EntityType
 
-fun getTextureRegion(plantType: PlantType) = CowSimulatorGame.assetLibrary.getPlantTextureRegion(plantType)
-
-class Plant(position: Vector2, private var plantTileType: PlantType) : Entity(position)
+class Plant(position: Vector2, width: Float, height: Float, entityType: EntityType) : Entity(position, width, height, entityType)
 {
-    private var plantTextureRegion: TextureRegion? = null
-        get() = getTextureRegion(plantTileType)
-
     var growTime = 0F
         set(value)
         {
-            if(plantTileType == PlantType.LOWGRASS0)
+            if(entityType == EntityType.LOWGRASS0)
             {
                 if(field > GRASS_GROW_TIME)
                 {
@@ -35,37 +26,27 @@ class Plant(position: Vector2, private var plantTileType: PlantType) : Entity(po
             }
         }
 
+    val harvestable
+        get() = entityType == EntityType.TALLGRASS0
+
+    override fun update(deltaTime: Float)
+    {}
+
     override fun draw(spriteBatch: SpriteBatch)
     {
-        if(plantTextureRegion != null)
+        if(entityTextureRegion != null)
         {
-            spriteBatch.draw(plantTextureRegion, position.x, position.y, GAME_PLANT_SIZE, GAME_PLANT_SIZE)
-        }
-    }
-
-    fun eatTallGrass()
-    {
-        if(plantTileType == PlantType.TALLGRASS0)
-        {
-            plantTileType = PlantType.NONE
-        }
-    }
-
-    fun plantLowGrass()
-    {
-        if(plantTileType == PlantType.NONE)
-        {
-            plantTileType = PlantType.LOWGRASS0
+            super.draw(spriteBatch)
         }
     }
 
     private fun growTallGrass()
     {
-        if(plantTileType == PlantType.LOWGRASS0)
+        if(entityType == EntityType.LOWGRASS0)
         {
-            plantTileType = PlantType.TALLGRASS0
+            entityType = EntityType.TALLGRASS0
         }
     }
 
-    fun bounds() = Rectangle(position.x, position.y, GAME_PLANT_SIZE, GAME_PLANT_SIZE)
+    fun getBounds() = Rectangle(position.x, position.y, width, height)
 }

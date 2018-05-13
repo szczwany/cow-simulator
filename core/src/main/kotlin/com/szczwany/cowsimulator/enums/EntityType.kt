@@ -1,8 +1,10 @@
 package com.szczwany.cowsimulator.enums
 
-enum class PlantType
+enum class EntityType
 {
     NONE,
+    ALIVE,
+    GRASS0,
     GRASS1,
     GRASS2,
     GRASS3,
@@ -13,6 +15,6 @@ enum class PlantType
 
     companion object
     {
-        fun valueOf(value: Int): PlantType = PlantType.values().first { it.ordinal == value }
+        fun valueOf(value: Int): EntityType = EntityType.values().first { it.ordinal == value }
     }
 }
