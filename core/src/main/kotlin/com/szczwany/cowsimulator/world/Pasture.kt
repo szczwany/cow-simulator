@@ -4,7 +4,6 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.math.Vector2
-import com.szczwany.cowsimulator.CowSimulatorGame
 import com.szczwany.cowsimulator.Settings.GAME_COW_SIZE
 import com.szczwany.cowsimulator.Settings.GAME_PLANT_SIZE
 import com.szczwany.cowsimulator.Settings.GAME_TILE_SIZE
@@ -14,7 +13,7 @@ import com.szczwany.cowsimulator.entity.Cow
 import com.szczwany.cowsimulator.entity.Entity
 import com.szczwany.cowsimulator.entity.Plant
 import com.szczwany.cowsimulator.entity.Tile
-import com.szczwany.cowsimulator.enums.ActionType
+import com.szczwany.cowsimulator.enums.PlantActionType
 import com.szczwany.cowsimulator.enums.EntityType
 import java.util.*
 
@@ -102,11 +101,11 @@ class Pasture(private val width: Int, private val height: Int)
 
         if(Gdx.input.isButtonPressed(Input.Buttons.LEFT))
         {
-            performPlantAction(mouseX, mouseY, ActionType.EAT)
+            performPlantAction(mouseX, mouseY, PlantActionType.HARVEST)
         }
         else if(Gdx.input.isButtonPressed(Input.Buttons.RIGHT))
         {
-            performPlantAction(mouseX, mouseY, ActionType.PLANT)
+            performPlantAction(mouseX, mouseY, PlantActionType.PLANT)
         }
     }
 
@@ -120,20 +119,20 @@ class Pasture(private val width: Int, private val height: Int)
         }
     }
 
-    private fun performPlantAction(mouseX: Float, mouseY: Float, actionType: ActionType)
+    private fun performPlantAction(mouseX: Float, mouseY: Float, plantActionType: PlantActionType)
     {
         val plant = getCurrentPlant(mouseX, mouseY)
 
         if(plant != null)
         {
-            if (actionType == ActionType.EAT && plant.harvestable)
+            if (plantActionType == PlantActionType.HARVEST && plant.harvestable)
             {
                 entityList.remove(plant)
             }
         }
         else
         {
-            if(actionType == ActionType.PLANT)
+            if(plantActionType == PlantActionType.PLANT)
             {
                 val entityPosition = pixelToEntityPosition(mouseX, mouseY)
 

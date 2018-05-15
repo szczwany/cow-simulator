@@ -2,26 +2,49 @@ package com.szczwany.cowsimulator.assets
 
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.Texture
+import com.badlogic.gdx.graphics.g2d.Animation
 import com.badlogic.gdx.graphics.g2d.TextureRegion
+import com.badlogic.gdx.utils.Array
 import com.szczwany.cowsimulator.Settings.TEXTURE_COW_SIZE
 import com.szczwany.cowsimulator.Settings.TEXTURE_TILE_SIZE
 import com.szczwany.cowsimulator.enums.EntityType
 
 class AssetLibrary
 {
+    private val eatRate = .2F
+    private val walkRate = .2F
 
     private val grassTerrain32x32: Texture = Texture(Gdx.files.internal("grass_tileset_32x32.png"))
     private val entityMap: MutableMap<EntityType, TextureRegion> = hashMapOf()
 
-    private val cowWalk: Texture = Texture(Gdx.files.internal("cow/cow_walk.png"))
+    private val cowWalkTexture: Texture = Texture(Gdx.files.internal("cow/cow_walk.png"))
     private val cowEat: Texture = Texture(Gdx.files.internal("cow/cow_eat.png"))
     private val cowShadow: Texture = Texture(Gdx.files.internal("cow/cow_shadow.png"))
-    private val cowMap: MutableMap<Int, TextureRegion> = hashMapOf()
+
+    private val cowWalkUpRegions = getFramesFromTexture(cowWalkTexture, TEXTURE_COW_SIZE, 0)
+    private val cowWalkLeftRegions = getFramesFromTexture(cowWalkTexture, TEXTURE_COW_SIZE, 1)
+    private val cowWalkDownRegions = getFramesFromTexture(cowWalkTexture, TEXTURE_COW_SIZE, 2)
+    private val cowWalkRightRegions = getFramesFromTexture(cowWalkTexture, TEXTURE_COW_SIZE, 3)
+    private val cowEatUpRegions = getFramesFromTexture(cowEat, TEXTURE_COW_SIZE, 0)
+    private val cowEatLeftRegions = getFramesFromTexture(cowEat, TEXTURE_COW_SIZE, 1)
+    private val cowEatDownRegions = getFramesFromTexture(cowEat, TEXTURE_COW_SIZE, 2)
+    private val cowEatRightRegions = getFramesFromTexture(cowEat, TEXTURE_COW_SIZE, 3)
+
+    val cowShadowRegions = getFramesFromTexture(cowShadow, TEXTURE_COW_SIZE, 0, true)
+
+    val cowAnimations = arrayOf(
+            Animation(walkRate, cowWalkUpRegions),
+            Animation(walkRate, cowWalkLeftRegions),
+            Animation(walkRate, cowWalkDownRegions),
+            Animation(walkRate, cowWalkRightRegions),
+            Animation(eatRate, cowEatUpRegions),
+            Animation(eatRate, cowEatLeftRegions),
+            Animation(eatRate, cowEatDownRegions),
+            Animation(eatRate, cowEatRightRegions))
 
     init
     {
         initGrassTerrain()
-        initCow()
     }
 
     private fun initGrassTerrain()
@@ -36,41 +59,24 @@ class AssetLibrary
         addEntityTextureRegion(1,2, EntityType.TALLGRASS0)
     }
 
-    private fun initCow()
+    private fun getFramesFromTexture(texture: Texture, regionSize: Int, row: Int, flip: Boolean = false): Array<TextureRegion>
     {
-        var index = 0
-        var w = cowWalk.width / TEXTURE_COW_SIZE
-        var h = cowWalk.height / TEXTURE_COW_SIZE
+        val frames = Array<TextureRegion>()
+        val size = if(flip) texture.height / regionSize else texture.width / regionSize
 
-        for(y in 0 until h)
+        for(column in 0 until size)
         {
-            for (x in 0 until w)
+            if(flip)
             {
-                cowMap[index] = TextureRegion(cowWalk, x * TEXTURE_COW_SIZE, y * TEXTURE_COW_SIZE, TEXTURE_COW_SIZE, TEXTURE_COW_SIZE)
-                index++
+                frames.add(TextureRegion(texture, row * regionSize, column * regionSize, regionSize, regionSize))
+            }
+            else
+            {
+                frames.add(TextureRegion(texture, column * regionSize, row * regionSize, regionSize, regionSize))
             }
         }
 
-        for(y in 0 until h)
-        {
-            for (x in 0 until w)
-            {
-                cowMap[index] = TextureRegion(cowEat, x * TEXTURE_COW_SIZE, y * TEXTURE_COW_SIZE, TEXTURE_COW_SIZE, TEXTURE_COW_SIZE)
-                index++
-            }
-        }
-
-        w = cowShadow.width / TEXTURE_COW_SIZE
-        h = cowShadow.height / TEXTURE_COW_SIZE
-
-        for(y in 0 until h)
-        {
-            for (x in 0 until w)
-            {
-                cowMap[index] = TextureRegion(cowShadow, x * TEXTURE_COW_SIZE, y * TEXTURE_COW_SIZE, TEXTURE_COW_SIZE, TEXTURE_COW_SIZE)
-                index++
-            }
-        }
+        return frames
     }
 
     private fun addEntityTextureRegion(x: Int, y: Int, entityType: EntityType)
@@ -80,12 +86,10 @@ class AssetLibrary
 
     fun getEntityTextureRegion(entityType: EntityType) : TextureRegion? = entityMap[entityType]
 
-    fun getCowTexture(index: Int) : TextureRegion? = cowMap[index]
-
     fun dispose()
     {
         grassTerrain32x32.dispose()
-        cowWalk.dispose()
+        cowWalkTexture.dispose()
         cowEat.dispose()
         cowShadow.dispose()
     }

@@ -1,8 +1,8 @@
 package com.szczwany.cowsimulator.enums
 
-enum class ActionType
+enum class PlantActionType
 {
-    EAT,
+    HARVEST,
     PLANT,
     GROW
 }

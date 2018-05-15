@@ -1,13 +1,10 @@
 package com.szczwany.cowsimulator.screens
 
 import com.badlogic.gdx.Gdx
-import com.badlogic.gdx.Input
 import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.szczwany.cowsimulator.Settings.PASTURE_HEIGHT
 import com.szczwany.cowsimulator.Settings.PASTURE_WIDTH
-import com.szczwany.cowsimulator.Settings.WINDOW_HEIGHT
-import com.szczwany.cowsimulator.enums.ActionType
 import com.szczwany.cowsimulator.world.Pasture
 
 class GameScreen : BaseScreen()
