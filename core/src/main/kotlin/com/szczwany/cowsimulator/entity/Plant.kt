@@ -7,36 +7,28 @@ import com.szczwany.cowsimulator.enums.EntityType
 
 class Plant(position: Vector2, width: Float, height: Float, entityType: EntityType) : Entity(position, width, height, entityType)
 {
-    var growTime = 0F
-        set(value)
-        {
-            if(entityType == EntityType.LOWGRASS0)
-            {
-                if(field > GRASS_GROW_TIME)
-                {
-                    growTallGrass()
-
-                    field = 0F
-                }
-                else
-                {
-                    field += value
-                }
-            }
-        }
+    private var growTime = 0F
+    var remove = false
 
     val harvestable
         get() = entityType == EntityType.TALLGRASS0
 
     override fun update(deltaTime: Float)
-    {}
+    {
+        if (!remove)
+        {
+            if (entityType == EntityType.LOWGRASS0 && growTime > GRASS_GROW_TIME)
+            {
+                growTallGrass()
+
+                growTime = 0F
+            }
+        }
+    }
 
     private fun growTallGrass()
     {
-        if(entityType == EntityType.LOWGRASS0)
-        {
-            entityType = EntityType.TALLGRASS0
-        }
+        entityType = EntityType.TALLGRASS0
     }
 
     fun getBounds() = Rectangle(position.x, position.y, width, height)

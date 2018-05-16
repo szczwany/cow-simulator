@@ -1,7 +1,6 @@
 package com.szczwany.cowsimulator.entity
 
 import com.badlogic.gdx.Gdx
-import com.badlogic.gdx.Input
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.math.Vector2
@@ -12,12 +11,15 @@ import com.szczwany.cowsimulator.Settings.WINDOW_WIDTH
 import com.szczwany.cowsimulator.enums.Direction
 import com.szczwany.cowsimulator.enums.EntityType
 import com.szczwany.cowsimulator.enums.StateType
+import java.util.*
 import kotlin.math.abs
 
 infix fun Vector2.distance(other: Vector2) = Math.sqrt(Math.pow((abs(other.x) - abs(this.x)).toDouble(), 2.0) + Math.pow((abs(other.y) - abs(this.y)).toDouble(), 2.0))
 
 class Cow(position: Vector2, width: Float, height: Float) : Entity(position, width, height, EntityType.ALIVE)
 {
+    private val random = Random()
+
     // move variables - test
     private var start: Vector2 = Vector2.Zero
     private var end = Vector2.Zero
@@ -25,15 +27,15 @@ class Cow(position: Vector2, width: Float, height: Float) : Entity(position, wid
     private val speed = 200F
     // end
 
-    private var currentAnimationFinished= false
+    private var currentAnimationFinished = false
 
     private var time = 0F
 
-    private var direction = Direction.RIGHT
+    private var directionIndex = Direction.DOWN
     private var state = StateType.IDLE
 
     private var shadowIndex = 0
-        get() = direction
+        get() = directionIndex
 
     private var shadowTextureRegion: TextureRegion? = null
         get() = CowSimulatorGame.assetLibrary.cowShadowRegions[shadowIndex]
@@ -82,72 +84,56 @@ class Cow(position: Vector2, width: Float, height: Float) : Entity(position, wid
         if(moving)
         {
             val distance = start.distance(end)
-            val angle = Vector2(end).sub(start).nor()
+            val direction = Vector2(end).sub(start).nor()
 
-            position.add(angle.scl(speed * deltaTime))
+            position.add(direction.scl(speed * deltaTime))
 
             if(start.distance(position) >= distance)
             {
                 position = Vector2(end)
 
                 moving = false
-                start = Vector2.Zero
-                end = Vector2.Zero
             }
+        }
+    }
+
+    private fun eat(plant: Plant)
+    {
+        if(plant.harvestable)
+        {
+            state = StateType.EAT
+
+            plant.remove = true
         }
     }
 
     override fun update(deltaTime: Float)
     {
+        setDirectionIndex()
         setTextureRegion()
+        setState()
 
         walk(deltaTime)
 
         if(state != StateType.IDLE) time += deltaTime else time = 0F
+    }
 
-        if(Gdx.input.isKeyPressed(Input.Keys.NUMPAD_4) && !moving)
+    private fun setState()
+    {
+        if(!moving && state == StateType.IDLE)
         {
-            state = StateType.WALK
-
-            if(direction != Direction.LEFT)
+            if(random.nextBoolean())
             {
-                direction = Direction.LEFT
-            }
+                state = StateType.WALK
 
-            moveToDestination(Vector2(1F, 1F))
-        }
-        else if(Gdx.input.isKeyPressed(Input.Keys.NUMPAD_6))
-        {
-            state = StateType.WALK
-
-            if(direction != Direction.RIGHT)
-            {
-                direction = Direction.RIGHT
+                moveToDestination(Vector2(Gdx.input.x.toFloat(), WINDOW_HEIGHT - Gdx.input.y.toFloat()))
             }
         }
-        else if(Gdx.input.isKeyPressed(Input.Keys.NUMPAD_8))
+        else if(state == StateType.WALK && !moving)
         {
-            state = StateType.WALK
-
-            if(direction != Direction.UP)
-            {
-                direction = Direction.UP
-            }
+            // eat(plant)
         }
-        else if(Gdx.input.isKeyPressed(Input.Keys.NUMPAD_2))
-        {
-            state = StateType.WALK
-
-            if(direction != Direction.DOWN)
-            {
-                direction = Direction.DOWN
-            }
-        }
-        else if(Gdx.input.isKeyPressed(Input.Keys.NUMPAD_5))
-        {
-            state = StateType.EAT
-        }
-        else if(currentAnimationFinished)
+        else if(currentAnimationFinished && !moving)
         {
             state = StateType.IDLE
         }
@@ -155,11 +141,27 @@ class Cow(position: Vector2, width: Float, height: Float) : Entity(position, wid
 
     private fun setTextureRegion()
     {
-        val index = if(state == StateType.EAT) direction + 4 else direction
+        val index = if(state == StateType.EAT) directionIndex + 4 else directionIndex
         val loop = state == StateType.WALK
 
         currentAnimationFinished = CowSimulatorGame.assetLibrary.cowAnimations[index].isAnimationFinished(time)
 
         entityTextureRegion = CowSimulatorGame.assetLibrary.cowAnimations[index].getKeyFrame(time, loop)
+    }
+
+    private fun setDirectionIndex()
+    {
+        var angle = Math.toDegrees(Math.atan2(end.y - start.y.toDouble(), end.x - start.x.toDouble())).toFloat()
+
+        if (angle < 0)
+        {
+            angle += 360f
+        }
+
+        directionIndex =
+                if(angle > 50 && angle < 130) Direction.UP
+                else if(angle > 230 && angle < 310) Direction.DOWN
+                else if(angle > 130 && angle < 230) Direction.LEFT
+                else Direction.RIGHT
     }
 }

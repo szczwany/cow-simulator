@@ -13,8 +13,8 @@ import com.szczwany.cowsimulator.entity.Cow
 import com.szczwany.cowsimulator.entity.Entity
 import com.szczwany.cowsimulator.entity.Plant
 import com.szczwany.cowsimulator.entity.Tile
-import com.szczwany.cowsimulator.enums.PlantActionType
 import com.szczwany.cowsimulator.enums.EntityType
+import com.szczwany.cowsimulator.enums.PlantActionType
 import java.util.*
 
 fun pixelToEntityPosition(x: Float, y: Float): Vector2
@@ -29,7 +29,7 @@ class Pasture(private val width: Int, private val height: Int)
 {
     private val entityList = mutableListOf<Entity>()
 
-    private val cow = Cow(Vector2(WINDOW_WIDTH / 2F - GAME_COW_SIZE / 2, WINDOW_HEIGHT / 2F - GAME_COW_SIZE / 2),
+    private val cow = Cow(Vector2(WINDOW_WIDTH / 2F, WINDOW_HEIGHT / 2F),
             GAME_COW_SIZE, GAME_COW_SIZE)
 
     init
@@ -86,14 +86,7 @@ class Pasture(private val width: Int, private val height: Int)
 
         for (entity in entityList)
         {
-            if(entity is Plant)
-            {
-                entity.growTime = deltaTime
-            }
-            else if(entity is Cow)
-            {
-                entity.update(deltaTime)
-            }
+            entity.update(deltaTime)
         }
 
         val mouseX = Gdx.input.x.toFloat()

@@ -27,6 +27,12 @@ abstract class Entity(protected open var position: Vector2, protected val width:
             return 1
         }
 
+        // TODO poprawic wyliczenie chowania sie krowy za krzakami
+        if(this is Cow)
+        {
+            return 1
+        }
+
         val tempY = other.position.y
         val compareY = position.y
 
