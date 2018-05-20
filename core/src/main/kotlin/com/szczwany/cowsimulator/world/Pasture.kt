@@ -3,6 +3,7 @@ package com.szczwany.cowsimulator.world
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
+import com.badlogic.gdx.math.MathUtils.random
 import com.badlogic.gdx.math.Vector2
 import com.szczwany.cowsimulator.Settings.GAME_COW_SIZE
 import com.szczwany.cowsimulator.Settings.GAME_PLANT_SIZE
@@ -14,16 +15,7 @@ import com.szczwany.cowsimulator.entity.Entity
 import com.szczwany.cowsimulator.entity.Plant
 import com.szczwany.cowsimulator.entity.Tile
 import com.szczwany.cowsimulator.enums.EntityType
-import com.szczwany.cowsimulator.enums.PlantActionType
 import java.util.*
-
-fun pixelToEntityPosition(x: Float, y: Float): Vector2
-{
-    val posX = (x / GAME_PLANT_SIZE).toInt() * GAME_PLANT_SIZE
-    val posY = (y / GAME_PLANT_SIZE).toInt() * GAME_PLANT_SIZE
-
-    return Vector2(posX, posY)
-}
 
 class Pasture(private val width: Int, private val height: Int)
 {
@@ -68,7 +60,7 @@ class Pasture(private val width: Int, private val height: Int)
                 val entityPosition = Vector2(x * GAME_PLANT_SIZE, y * GAME_PLANT_SIZE)
                 val entityType = EntityType.valueOf(random.nextInt(2) + 8)
 
-                val plant = Plant(entityPosition, GAME_PLANT_SIZE, GAME_PLANT_SIZE, entityType)
+                val plant = Plant(entityPosition, GAME_PLANT_SIZE, GAME_PLANT_SIZE, entityType, 20F)
 
                 entityList.add(plant)
             }
@@ -79,26 +71,19 @@ class Pasture(private val width: Int, private val height: Int)
 
     fun update(deltaTime: Float)
     {
-        if(Gdx.input.isKeyJustPressed(Input.Keys.G))
+        if (Gdx.input.isKeyJustPressed(Input.Keys.G))
         {
             generate()
         }
 
         for (entity in entityList)
         {
+            if(entity is Cow && entity.isHungry)
+            {
+                entity.setCurrentPlant(findHarvestablePlant())
+            }
+
             entity.update(deltaTime)
-        }
-
-        val mouseX = Gdx.input.x.toFloat()
-        val mouseY = WINDOW_HEIGHT - Gdx.input.y.toFloat()
-
-        if(Gdx.input.isButtonPressed(Input.Buttons.LEFT))
-        {
-            performPlantAction(mouseX, mouseY, PlantActionType.HARVEST)
-        }
-        else if(Gdx.input.isButtonPressed(Input.Buttons.RIGHT))
-        {
-            performPlantAction(mouseX, mouseY, PlantActionType.PLANT)
         }
     }
 
@@ -112,38 +97,22 @@ class Pasture(private val width: Int, private val height: Int)
         }
     }
 
-    private fun performPlantAction(mouseX: Float, mouseY: Float, plantActionType: PlantActionType)
+    private fun findHarvestablePlant() : Plant
     {
-        val plant = getCurrentPlant(mouseX, mouseY)
+        // todo co jesli nie ma juz duzej trawy? -> GAME OVER JESLI NULL (bedzie trzeba sadzic, zeby miala co jesc)
 
-        if(plant != null)
-        {
-            if (plantActionType == PlantActionType.HARVEST && plant.harvestable)
-            {
-                entityList.remove(plant)
-            }
-        }
-        else
-        {
-            if(plantActionType == PlantActionType.PLANT)
-            {
-                val entityPosition = pixelToEntityPosition(mouseX, mouseY)
+        val harvestablePlants = mutableListOf<Plant>()
 
-                entityList.add(Plant(entityPosition, GAME_PLANT_SIZE, GAME_PLANT_SIZE, EntityType.LOWGRASS0))
-            }
-        }
-    }
-
-    private fun getCurrentPlant(x: Float, y: Float) : Plant?
-    {
-        for (entity in entityList)
+        for(entity in entityList)
         {
-            if (entity is Plant && entity.getBounds().contains(x, y))
+            if(entity is Plant && entity.isHarvestable)
             {
-                return entity
+                harvestablePlants.add(entity)
             }
         }
 
-        return null
+        val index = random.nextInt(harvestablePlants.size)
+
+        return harvestablePlants[index]
     }
 }

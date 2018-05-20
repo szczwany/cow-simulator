@@ -8,7 +8,7 @@ import com.szczwany.cowsimulator.enums.EntityType
 
 fun getTextureRegion(entityType: EntityType) = CowSimulatorGame.assetLibrary.getEntityTextureRegion(entityType)
 
-abstract class Entity(protected open var position: Vector2, protected val width: Float, protected val height: Float, protected var entityType: EntityType) : Comparable<Entity>
+abstract class Entity(protected var position: Vector2, protected val width: Float, protected val height: Float, protected var entityType: EntityType) : Comparable<Entity>
 {
     protected open var entityTextureRegion: TextureRegion? = null
         get() = if(entityType != EntityType.ALIVE) getTextureRegion(entityType) else null
@@ -38,4 +38,6 @@ abstract class Entity(protected open var position: Vector2, protected val width:
 
         return if (tempY < compareY) -1 else if (tempY > compareY) 1 else 0
     }
+
+    fun getCenter() = Vector2(position.x + width / 2, position.y + height / 2)
 }
