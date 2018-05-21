@@ -3,6 +3,7 @@ package com.szczwany.cowsimulator.assets
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.Animation
+import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.utils.Array
 import com.szczwany.cowsimulator.Settings.TEXTURE_COW_SIZE
@@ -20,6 +21,9 @@ class AssetLibrary
     private val cowWalkTexture: Texture = Texture(Gdx.files.internal("cow/cow_walk.png"))
     private val cowEat: Texture = Texture(Gdx.files.internal("cow/cow_eat.png"))
     private val cowShadow: Texture = Texture(Gdx.files.internal("cow/cow_shadow.png"))
+
+    val cowMessageFont = BitmapFont(Gdx.files.internal("fonts/gabriola.fnt"))
+    val cowMessageCloud = Texture(Gdx.files.internal("message_cloud.png"))
 
     private val cowWalkUpRegions = getFramesFromTexture(cowWalkTexture, TEXTURE_COW_SIZE, 0)
     private val cowWalkLeftRegions = getFramesFromTexture(cowWalkTexture, TEXTURE_COW_SIZE, 1)
@@ -92,5 +96,6 @@ class AssetLibrary
         cowWalkTexture.dispose()
         cowEat.dispose()
         cowShadow.dispose()
+        cowMessageFont.dispose()
     }
 }

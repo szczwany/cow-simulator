@@ -1,5 +1,6 @@
 package com.szczwany.cowsimulator.entity
 
+import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.math.Vector2
@@ -12,10 +13,14 @@ import com.szczwany.cowsimulator.enums.StateType
 import java.util.*
 import kotlin.math.abs
 
+
 infix fun Vector2.distance(other: Vector2) = Math.sqrt(Math.pow((abs(other.x) - abs(this.x)).toDouble(), 2.0) + Math.pow((abs(other.y) - abs(this.y)).toDouble(), 2.0))
 
 class Cow(position: Vector2, width: Float, height: Float) : Entity(position, width, height, EntityType.ALIVE)
 {
+    private val cowFont = CowSimulatorGame.assetLibrary.cowMessageFont
+    private val cowCloud = CowSimulatorGame.assetLibrary.cowMessageCloud
+
     private var start = Vector2.Zero
     private var end = Vector2.Zero
     private var isMoving = false
@@ -92,43 +97,48 @@ class Cow(position: Vector2, width: Float, height: Float) : Entity(position, wid
 
     override fun update(deltaTime: Float)
     {
-        if(state != StateType.IDLE) time += deltaTime else time = 0F
+        if (state != StateType.IDLE) time += deltaTime else time = 0F
 
         setDirectionIndex()
         setCurrentAnimation()
 
-        if(!onDestination && isMoving)
+        if (!onDestination && isMoving)
         {
             walk(deltaTime)
         }
         else
         {
-            if(state == StateType.IDLE)
+            if (state == StateType.IDLE)
             {
                 val random = Random()
-                val nextPosition: Vector2
 
-                if(isHungry) //   eat grass!
+                if (random.nextInt(200) < 1 || hungerQuantity > 75) // jesli random albo mocno glodna to pochodz sobie lub jedz else stoj
                 {
-                    nextPosition = Vector2(currentPlant!!.getCenter())
-                }
-                else    // wander
-                {
-                    nextPosition = Vector2(random.nextInt((WINDOW_WIDTH - 300) + 200).toFloat(),
-                            random.nextInt((WINDOW_HEIGHT - 300) + 200).toFloat())
+                    val nextPosition: Vector2
+
+                    if (isHungry) //   eat grass!
+                    {
+                        nextPosition = Vector2(currentPlant!!.getCenter())
+                    }
+                    else   // wander
+                    {
+                        nextPosition = Vector2(random.nextInt((WINDOW_WIDTH - 300) + 200).toFloat(),
+                                random.nextInt((WINDOW_HEIGHT - 300) + 200).toFloat())
+                    }
+
+                    moveToDestination(nextPosition)
                 }
 
-                moveToDestination(nextPosition)
             }
-            else if(state == StateType.WALK)
+            else if (state == StateType.WALK)
             {
                 time = 0F
 
-                state = if(!isHungry) StateType.IDLE else StateType.EAT
+                state = if (!isHungry) StateType.IDLE else StateType.EAT
 
                 hungerQuantity += distanceWalked / 100F
             }
-            else if(state == StateType.EAT && currentAnimation.isAnimationFinished(time))
+            else if (state == StateType.EAT && currentAnimation.isAnimationFinished(time))
             {
                 currentPlant!!.eatTallGrass()
                 hungerQuantity -= currentPlant!!.foodQuantity
@@ -157,9 +167,26 @@ class Cow(position: Vector2, width: Float, height: Float) : Entity(position, wid
         }
 
         directionIndex =
-                if(angle > 50 && angle < 130) Direction.UP
-                else if(angle > 230 && angle < 310) Direction.DOWN
-                else if(angle > 130 && angle < 230) Direction.LEFT
+                if (angle > 50 && angle < 130) Direction.UP
+                else if (angle > 230 && angle < 310) Direction.DOWN
+                else if (angle > 130 && angle < 230) Direction.LEFT
                 else Direction.RIGHT
+    }
+
+    // testowa chmurka z wiadomoscia od krowy
+    fun drawCowMessage(spriteBatch: SpriteBatch)
+    {
+        val message = if (state == StateType.IDLE) "Co by tu..." else if (state == StateType.EAT) "Jedzonkoo" else ""
+
+        if (!message.isEmpty())
+        {
+            cowFont.color = Color.BLACK
+
+            val x = position.x + 20
+            val y = position.y + 30
+
+            spriteBatch.draw(cowCloud, x, y)
+            cowFont.draw(spriteBatch, message, x + 15, y + 70)
+        }
     }
 }

@@ -10,10 +10,7 @@ import com.szczwany.cowsimulator.Settings.GAME_PLANT_SIZE
 import com.szczwany.cowsimulator.Settings.GAME_TILE_SIZE
 import com.szczwany.cowsimulator.Settings.WINDOW_HEIGHT
 import com.szczwany.cowsimulator.Settings.WINDOW_WIDTH
-import com.szczwany.cowsimulator.entity.Cow
-import com.szczwany.cowsimulator.entity.Entity
-import com.szczwany.cowsimulator.entity.Plant
-import com.szczwany.cowsimulator.entity.Tile
+import com.szczwany.cowsimulator.entity.*
 import com.szczwany.cowsimulator.enums.EntityType
 import java.util.*
 
@@ -58,9 +55,22 @@ class Pasture(private val width: Int, private val height: Int)
                 }
 
                 val entityPosition = Vector2(x * GAME_PLANT_SIZE, y * GAME_PLANT_SIZE)
-                val entityType = EntityType.valueOf(random.nextInt(2) + 8)
+                val entityType: EntityType
+                val foodQuantity: Float
 
-                val plant = Plant(entityPosition, GAME_PLANT_SIZE, GAME_PLANT_SIZE, entityType, 20F)
+                if (random.nextInt(100) > 20)
+                {
+                    entityType = EntityType.valueOf(random.nextInt(2) + 8)
+                    foodQuantity = 20F
+                }
+                else
+                {
+                    entityType = EntityType.valueOf(random.nextInt(2) + 6)
+                    foodQuantity = 0F
+
+                }
+
+                val plant = Plant(entityPosition, GAME_PLANT_SIZE, GAME_PLANT_SIZE, entityType, foodQuantity)
 
                 entityList.add(plant)
             }
@@ -76,15 +86,24 @@ class Pasture(private val width: Int, private val height: Int)
             generate()
         }
 
+        val entitiesToRemove = mutableListOf<Entity>()
+
         for (entity in entityList)
         {
-            if(entity is Cow && entity.isHungry)
+            if (entity.toRemove)
+            {
+                entitiesToRemove.add(entity)
+            }
+
+            if (entity is Cow && entity.isHungry)
             {
                 entity.setCurrentPlant(findHarvestablePlant())
             }
 
             entity.update(deltaTime)
         }
+
+        entityList.removeAll(entitiesToRemove)
     }
 
     fun draw(spriteBatch: SpriteBatch)
@@ -95,7 +114,11 @@ class Pasture(private val width: Int, private val height: Int)
         {
             entity.draw(spriteBatch)
         }
+
+        cow.drawCowMessage(spriteBatch)
     }
+
+
 
     private fun findHarvestablePlant() : Plant
     {

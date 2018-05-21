@@ -28,7 +28,7 @@ class Plant(position: Vector2, width: Float, height: Float, entityType: EntityTy
     {
         if(isHarvestable)
         {
-            entityType = EntityType.LOWGRASS0
+            entityType = EntityType.NONE
         }
     }
 }
