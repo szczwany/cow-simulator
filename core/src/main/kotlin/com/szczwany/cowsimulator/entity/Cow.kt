@@ -13,7 +13,6 @@ import com.szczwany.cowsimulator.enums.StateType
 import java.util.*
 import kotlin.math.abs
 
-
 infix fun Vector2.distance(other: Vector2) = Math.sqrt(Math.pow((abs(other.x) - abs(this.x)).toDouble(), 2.0) + Math.pow((abs(other.y) - abs(this.y)).toDouble(), 2.0))
 
 class Cow(position: Vector2, width: Float, height: Float) : Entity(position, width, height, EntityType.ALIVE)

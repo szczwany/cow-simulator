@@ -10,7 +10,11 @@ import com.szczwany.cowsimulator.Settings.GAME_PLANT_SIZE
 import com.szczwany.cowsimulator.Settings.GAME_TILE_SIZE
 import com.szczwany.cowsimulator.Settings.WINDOW_HEIGHT
 import com.szczwany.cowsimulator.Settings.WINDOW_WIDTH
-import com.szczwany.cowsimulator.entity.*
+import com.szczwany.cowsimulator.astar.Node
+import com.szczwany.cowsimulator.entity.Cow
+import com.szczwany.cowsimulator.entity.Entity
+import com.szczwany.cowsimulator.entity.Plant
+import com.szczwany.cowsimulator.entity.Tile
 import com.szczwany.cowsimulator.enums.EntityType
 import java.util.*
 
@@ -97,7 +101,9 @@ class Pasture(private val width: Int, private val height: Int)
 
             if (entity is Cow && entity.isHungry)
             {
-                entity.setCurrentPlant(findHarvestablePlant())
+                val plant = findHarvestablePlant()
+
+                entity.setCurrentPlant(plant)
             }
 
             entity.update(deltaTime)
@@ -117,8 +123,6 @@ class Pasture(private val width: Int, private val height: Int)
 
         cow.drawCowMessage(spriteBatch)
     }
-
-
 
     private fun findHarvestablePlant() : Plant
     {

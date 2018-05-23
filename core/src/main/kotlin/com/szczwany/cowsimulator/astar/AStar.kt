@@ -5,8 +5,11 @@ import java.util.ArrayList
 
 
 
-class AStar(private val width: Int, private val height: Int, private val nodes: List<Node>, private val startNode: Node, private val goalNode: Node)
+class AStar(private val width: Int, private val height: Int, private val nodes: List<Node>)
 {
+    private lateinit var startNode: Node
+    private lateinit var goalNode: Node
+
     private val horizontalCost = 10
     private val diagonalCost = 14
     
@@ -15,7 +18,7 @@ class AStar(private val width: Int, private val height: Int, private val nodes: 
 
     init
     {
-        setNodes()
+        // setNodes()
     }
 
     private fun setNodes()
@@ -28,6 +31,8 @@ class AStar(private val width: Int, private val height: Int, private val nodes: 
 
     fun findPath(): List<Node>
     {
+        setNodes()
+
         openList.add(startNode)
 
         while (openList.isNotEmpty())
@@ -78,63 +83,63 @@ class AStar(private val width: Int, private val height: Int, private val nodes: 
 
     private fun addAdjacentLowerRow(currentNode: Node)
     {
-        val row = currentNode.y
-        val col = currentNode.x
-        val lowerRow = row - 1
+        val x = currentNode.x
+        val y = currentNode.y
+        val lowerRow = y - 1
 
         if (lowerRow >= 0)
         {
-            if (col - 1 >= 0)
+            if (x - 1 >= 0)
             {
-                checkNode(currentNode, col - 1, lowerRow, diagonalCost) // Comment this line if diagonal movements are not allowed
+                checkNode(currentNode, x - 1, lowerRow, diagonalCost) // Comment this line if diagonal movements are not allowed
             }
-            if (col + 1 <= width)
+            if (x + 1 < width)
             {
-                checkNode(currentNode, col + 1, lowerRow, diagonalCost) // Comment this line if diagonal movements are not allowed
+                checkNode(currentNode, x + 1, lowerRow, diagonalCost) // Comment this line if diagonal movements are not allowed
             }
-            checkNode(currentNode, col, lowerRow, horizontalCost)
+            checkNode(currentNode, x, lowerRow, horizontalCost)
         }
     }
 
     private fun addAdjacentMiddleRow(currentNode: Node)
     {
-        val row = currentNode.y
-        val col = currentNode.x
-        val middleRow = row
+        val x = currentNode.x
+        val y = currentNode.y
+        val middleRow = y
 
-        if (col - 1 >= 0)
+        if (x - 1 >= 0)
         {
-            checkNode(currentNode, col - 1, middleRow, horizontalCost)
+            checkNode(currentNode, x - 1, middleRow, horizontalCost)
         }
-        if (col + 1 <= width)
+        if (x + 1 < width)
         {
-            checkNode(currentNode, col + 1, middleRow, horizontalCost)
+            checkNode(currentNode, x + 1, middleRow, horizontalCost)
         }
     }
 
     private fun addAdjacentUpperRow(currentNode: Node)
     {
-        val row = currentNode.y
-        val col = currentNode.x
-        val upperRow = row + 1
+        val x = currentNode.x
+        val y = currentNode.y
+        val upperRow = y + 1
 
-        if (upperRow <= height)
+        if (upperRow < height)
         {
-            if (col - 1 >= 0)
+            if (x - 1 >= 0)
             {
-                checkNode(currentNode, col - 1, upperRow, diagonalCost)
+                checkNode(currentNode, x - 1, upperRow, diagonalCost)
             }
-            if (col + 1 <= width)
+            if (x + 1 < width)
             {
-                checkNode(currentNode, col + 1, upperRow, diagonalCost)
+                checkNode(currentNode, x + 1, upperRow, diagonalCost)
             }
-            checkNode(currentNode, col, upperRow, horizontalCost)
+            checkNode(currentNode, x, upperRow, horizontalCost)
         }
     }
 
-    private fun checkNode(currentNode: Node, col: Int, row: Int, cost: Int)
+    private fun checkNode(currentNode: Node, x: Int, y: Int, cost: Int)
     {
-        val index = col * (width + 1) + row
+        val index = x + width * y
 
         val adjacentNode = nodes[index]
         if (adjacentNode.isPassable && !closedList.contains(adjacentNode))
@@ -155,5 +160,15 @@ class AStar(private val width: Int, private val height: Int, private val nodes: 
                 }
             }
         }
+    }
+
+    fun setStartNode(startNode: Node)
+    {
+        this.startNode = startNode
+    }
+
+    fun setGoalNode(goalNode: Node)
+    {
+        this.goalNode = goalNode
     }
 }
