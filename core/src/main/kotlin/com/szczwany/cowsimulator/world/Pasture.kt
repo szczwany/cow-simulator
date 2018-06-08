@@ -10,7 +10,6 @@ import com.szczwany.cowsimulator.Settings.GAME_PLANT_SIZE
 import com.szczwany.cowsimulator.Settings.GAME_TILE_SIZE
 import com.szczwany.cowsimulator.Settings.WINDOW_HEIGHT
 import com.szczwany.cowsimulator.Settings.WINDOW_WIDTH
-import com.szczwany.cowsimulator.astar.Node
 import com.szczwany.cowsimulator.entity.Cow
 import com.szczwany.cowsimulator.entity.Entity
 import com.szczwany.cowsimulator.entity.Plant
@@ -35,9 +34,9 @@ class Pasture(private val width: Int, private val height: Int)
         entityList.clear()
 
         // init grass
-        for(y in 0 until height)
+        for (y in 0 until height)
         {
-            for(x in 0 until width)
+            for (x in 0 until width)
             {
                 val entityPosition = Vector2(x * GAME_TILE_SIZE, y * GAME_TILE_SIZE)
                 val tile = Tile(entityPosition, GAME_TILE_SIZE, GAME_TILE_SIZE, EntityType.GRASS0)
@@ -49,11 +48,11 @@ class Pasture(private val width: Int, private val height: Int)
         // init entities
         val random = Random()
 
-        for(y in 0 until height)
+        for (y in 0 until height)
         {
-            for(x in 0 until width)
+            for (x in 0 until width)
             {
-                if(random.nextBoolean())
+                if (random.nextBoolean())
                 {
                     continue
                 }
@@ -99,10 +98,9 @@ class Pasture(private val width: Int, private val height: Int)
                 entitiesToRemove.add(entity)
             }
 
-            if (entity is Cow && entity.isHungry)
+            if (entity is Cow && entity.isHungry && entity.getCurrentPlant() == null)
             {
                 val plant = findHarvestablePlant()
-
                 entity.setCurrentPlant(plant)
             }
 
@@ -116,7 +114,7 @@ class Pasture(private val width: Int, private val height: Int)
     {
         entityList.sort()
 
-        for(entity in entityList)
+        for (entity in entityList)
         {
             entity.draw(spriteBatch)
         }
@@ -124,22 +122,26 @@ class Pasture(private val width: Int, private val height: Int)
         cow.drawCowMessage(spriteBatch)
     }
 
-    private fun findHarvestablePlant() : Plant
+    private fun findHarvestablePlant(): Plant
     {
-        // todo co jesli nie ma juz duzej trawy? -> GAME OVER JESLI NULL (bedzie trzeba sadzic, zeby miala co jesc)
-
         val harvestablePlants = mutableListOf<Plant>()
 
-        for(entity in entityList)
+        for (entity in entityList)
         {
-            if(entity is Plant && entity.isHarvestable)
+            if (entity is Plant && entity.isHarvestable)
             {
                 harvestablePlants.add(entity)
             }
         }
 
-        val index = random.nextInt(harvestablePlants.size)
+        var plantsSize = harvestablePlants.size
+        if (plantsSize == 0)
+        {
+            // todo co jesli nie ma juz duzej trawy? -> GAME OVER JESLI NULL (bedzie trzeba sadzic, zeby miala co jesc)
+            throw CowGonnaToDeadException("Cow is dead. No plants to eat...")
+        }
 
+        val index = random.nextInt(plantsSize)
         return harvestablePlants[index]
     }
 }

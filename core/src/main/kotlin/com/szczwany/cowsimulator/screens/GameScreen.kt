@@ -15,7 +15,7 @@ class GameScreen : BaseScreen()
 {
     private lateinit var spriteBatch: SpriteBatch
 
-    // private val pasture = Pasture(PASTURE_WIDTH, PASTURE_HEIGHT)
+     private val pasture = Pasture(PASTURE_WIDTH, PASTURE_HEIGHT)
 
     private var done = false
 
@@ -50,7 +50,7 @@ class GameScreen : BaseScreen()
 
     private fun draw(deltaTime: Float)
     {
-        // pasture.draw(spriteBatch)
+         pasture.draw(spriteBatch)
 
         if (!done)
         {
@@ -87,7 +87,7 @@ class GameScreen : BaseScreen()
         Gdx.gl.glClearColor(0f, 0f, 0f, 1f)
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
 
-        // pasture.update(deltaTime)
+         pasture.update(deltaTime)
 
         spriteBatch.begin()
         draw(deltaTime)
