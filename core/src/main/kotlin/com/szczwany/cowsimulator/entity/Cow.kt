@@ -22,7 +22,6 @@ class Cow(position: Vector2, width: Float, height: Float) : Entity(position, wid
 
     private var start = Vector2.Zero
     private var end = Vector2.Zero
-    private var isMoving = false
     private var onDestination = true
     private val speed = 200F
 
@@ -66,12 +65,16 @@ class Cow(position: Vector2, width: Float, height: Float) : Entity(position, wid
         }
     }
 
+    fun getCurrentPlant() : Plant?
+    {
+        return currentPlant
+    }
+
     private fun moveToDestination(destination: Vector2)
     {
         start = Vector2(position)
         end = Vector2(destination)
 
-        isMoving = true
         onDestination = false
         state = StateType.WALK
     }
@@ -87,7 +90,6 @@ class Cow(position: Vector2, width: Float, height: Float) : Entity(position, wid
         {
             position = Vector2(end)
 
-            isMoving = false
             onDestination = true
 
             distanceWalked = distance.toFloat()
@@ -101,7 +103,7 @@ class Cow(position: Vector2, width: Float, height: Float) : Entity(position, wid
         setDirectionIndex()
         setCurrentAnimation()
 
-        if (!onDestination && isMoving)
+        if (!onDestination && state == StateType.WALK)
         {
             walk(deltaTime)
         }
@@ -110,7 +112,7 @@ class Cow(position: Vector2, width: Float, height: Float) : Entity(position, wid
             if (state == StateType.IDLE)
             {
                 val random = Random()
-
+                println("hunger quantity: "+ hungerQuantity)
                 if (random.nextInt(200) < 1 || hungerQuantity > 75) // jesli random albo mocno glodna to pochodz sobie lub jedz else stoj
                 {
                     val nextPosition: Vector2
