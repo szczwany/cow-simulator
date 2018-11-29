@@ -3,13 +3,8 @@ package com.szczwany.cowsimulator.astar
 import java.util.PriorityQueue
 import java.util.ArrayList
 
-
-
-class AStar(private val width: Int, private val height: Int, private val nodes: List<Node>)
+class AStar(private val width: Int, private val height: Int, private val nodes: List<Node>, private val startNode: Node, private val goalNode: Node)
 {
-    private lateinit var startNode: Node
-    private lateinit var goalNode: Node
-
     private val horizontalCost = 10
     private val diagonalCost = 14
     
@@ -18,7 +13,7 @@ class AStar(private val width: Int, private val height: Int, private val nodes: 
 
     init
     {
-        // setNodes()
+        setNodes()
     }
 
     private fun setNodes()
@@ -31,8 +26,6 @@ class AStar(private val width: Int, private val height: Int, private val nodes: 
 
     fun findPath(): List<Node>
     {
-        setNodes()
-
         openList.add(startNode)
 
         while (openList.isNotEmpty())
@@ -160,15 +153,5 @@ class AStar(private val width: Int, private val height: Int, private val nodes: 
                 }
             }
         }
-    }
-
-    fun setStartNode(startNode: Node)
-    {
-        this.startNode = startNode
-    }
-
-    fun setGoalNode(goalNode: Node)
-    {
-        this.goalNode = goalNode
     }
 }

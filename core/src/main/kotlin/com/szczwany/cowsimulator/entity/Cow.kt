@@ -5,17 +5,24 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.math.Vector2
 import com.szczwany.cowsimulator.CowSimulatorGame
+import com.szczwany.cowsimulator.Settings.GAME_TILE_SIZE
+import com.szczwany.cowsimulator.Settings.PASTURE_HEIGHT
+import com.szczwany.cowsimulator.Settings.PASTURE_WIDTH
 import com.szczwany.cowsimulator.Settings.WINDOW_HEIGHT
 import com.szczwany.cowsimulator.Settings.WINDOW_WIDTH
+import com.szczwany.cowsimulator.astar.AStar
+import com.szczwany.cowsimulator.astar.Node
 import com.szczwany.cowsimulator.enums.Direction
 import com.szczwany.cowsimulator.enums.EntityType
 import com.szczwany.cowsimulator.enums.StateType
+import com.szczwany.cowsimulator.world.Pasture
 import java.util.*
 import kotlin.math.abs
 
 infix fun Vector2.distance(other: Vector2) = Math.sqrt(Math.pow((abs(other.x) - abs(this.x)).toDouble(), 2.0) + Math.pow((abs(other.y) - abs(this.y)).toDouble(), 2.0))
+fun positionToCoord(position: Float) = (position / GAME_TILE_SIZE).toInt()
 
-class Cow(position: Vector2, width: Float, height: Float) : Entity(position, width, height, EntityType.ALIVE)
+class Cow(position: Vector2, width: Float, height: Float, private val pasture: Pasture) : Entity(position, width, height, EntityType.ALIVE)
 {
     private val cowFont = CowSimulatorGame.assetLibrary.cowMessageFont
     private val cowCloud = CowSimulatorGame.assetLibrary.cowMessageCloud
@@ -26,11 +33,15 @@ class Cow(position: Vector2, width: Float, height: Float) : Entity(position, wid
     private var onDestination = true
     private val speed = 200F
 
+    private var currentPath = emptyList<Node>()
+    private var index = 0
+    private var hasNextPath = false
+
     private var distanceWalked = 0F
 
     private var time = 0F
 
-    private var currentPlant: Plant? = null
+    private lateinit var currentPlant: Plant
 
     val isHungry
         get() = hungerQuantity > 50
@@ -38,7 +49,7 @@ class Cow(position: Vector2, width: Float, height: Float) : Entity(position, wid
     private var hungerQuantity = 100F
         set(value)
         {
-            field = if(value > 100) 100F else if(value < 0) 0F else value
+            field = if (value > 100) 100F else if (value < 0) 0F else value
         }
 
     private var directionIndex = Direction.DOWN
@@ -58,14 +69,6 @@ class Cow(position: Vector2, width: Float, height: Float) : Entity(position, wid
         spriteBatch.draw(currentAnimation.getKeyFrame(time, state == StateType.WALK), position.x - width / 2, position.y - height / 2, width, height)
     }
 
-    fun setCurrentPlant(plant: Plant)
-    {
-        if(currentPlant == null)
-        {
-            currentPlant = plant
-        }
-    }
-
     private fun moveToDestination(destination: Vector2)
     {
         start = Vector2(position)
@@ -83,14 +86,14 @@ class Cow(position: Vector2, width: Float, height: Float) : Entity(position, wid
 
         position.add(direction.scl(speed * deltaTime))
 
-        if(start.distance(position) >= distance)
+        if (start.distance(position) >= distance)
         {
             position = Vector2(end)
 
             isMoving = false
             onDestination = true
 
-            distanceWalked = distance.toFloat()
+            distanceWalked += distance.toFloat()
         }
     }
 
@@ -101,7 +104,69 @@ class Cow(position: Vector2, width: Float, height: Float) : Entity(position, wid
         setDirectionIndex()
         setCurrentAnimation()
 
-        if (!onDestination && isMoving)
+        if (state == StateType.EAT && currentAnimation.isAnimationFinished(time))
+        {
+            currentPlant.eatTallGrass()
+            hungerQuantity -= currentPlant.foodQuantity
+
+            state = StateType.IDLE
+        }
+
+        if (!hasNextPath && state == StateType.IDLE && isHungry)
+        {
+            currentPlant = pasture.findHarvestablePlant()
+
+            val startNode = Node(positionToCoord(position.x), positionToCoord(position.y), true)
+            val goalNode = Node(positionToCoord(currentPlant.getCenter().x), positionToCoord(currentPlant.getCenter().y), true)
+
+            val aStar = AStar(PASTURE_WIDTH, PASTURE_HEIGHT, pasture.nodes, startNode, goalNode)
+
+            currentPath = aStar.findPath()
+            index = 0
+
+            hasNextPath = true
+
+            state = StateType.WALK
+        }
+
+        if (onDestination)
+        {
+            if (index == currentPath.size - 1)
+            {
+                hasNextPath = false
+
+                if (state == StateType.WALK)
+                {
+                    state = StateType.EAT
+                    time = 0F
+
+                    hungerQuantity += distanceWalked / 50F
+                    distanceWalked = 0F
+                }
+            }
+            else if (currentPath.isNotEmpty())
+            {
+                index++
+
+                val posX = currentPath[index].x * GAME_TILE_SIZE + GAME_TILE_SIZE / 2
+                val posY = currentPath[index].y * GAME_TILE_SIZE + GAME_TILE_SIZE / 2
+
+                val nextPosition = Vector2(posX, posY)
+
+                moveToDestination(nextPosition)
+            }
+            else
+            {
+                println("NO MORE PATHS")
+            }
+        }
+
+        if (isMoving)
+        {
+            walk(deltaTime)
+        }
+
+        /*if (!onDestination && isMoving)
         {
             walk(deltaTime)
         }
@@ -117,7 +182,7 @@ class Cow(position: Vector2, width: Float, height: Float) : Entity(position, wid
 
                     if (isHungry) //   eat grass!
                     {
-                        nextPosition = Vector2(currentPlant!!.getCenter())
+                        nextPosition = Vector2(currentPlant.getCenter())
                     }
                     else   // wander
                     {
@@ -139,18 +204,17 @@ class Cow(position: Vector2, width: Float, height: Float) : Entity(position, wid
             }
             else if (state == StateType.EAT && currentAnimation.isAnimationFinished(time))
             {
-                currentPlant!!.eatTallGrass()
-                hungerQuantity -= currentPlant!!.foodQuantity
-                currentPlant = null
+                currentPlant.eatTallGrass()
+                hungerQuantity -= currentPlant.foodQuantity
 
                 state = StateType.IDLE
             }
-        }
+        }*/
     }
 
     private fun setCurrentAnimation()
     {
-        val index = if(state == StateType.EAT) directionIndex + 4 else directionIndex
+        val index = if (state == StateType.EAT) directionIndex + 4 else directionIndex
 
         currentAnimation = CowSimulatorGame.assetLibrary.cowAnimations[index]
 
