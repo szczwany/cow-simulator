@@ -32,7 +32,6 @@ class GameScreen : BaseScreen()
 
         spriteBatch.begin()
         draw(deltaTime)
-
         spriteBatch.end()
     }
 
